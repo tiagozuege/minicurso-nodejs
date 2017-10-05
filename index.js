@@ -1,6 +1,7 @@
 const express = require('express');		//importa o framework 'express'
 const db = require('./app/db');
 const crawler = require('./app/crawler');
+const bodyParser = require('body-parser')
 
 crawler();
 
@@ -8,6 +9,7 @@ let app = express();					//inicia o framework 'express'
 
 
 app.use(express.static('public'));		//passa como parametro os arquivos estaticos utilizados
+app.use(bodyParser.json());
 
 app.get('/sites', (req, res) => {
 
@@ -48,26 +50,25 @@ app.get('/historico', (req, res) => {
 
 });
 
-// app.post('/site', (req, res) => {
+app.post('/site', (req, res) => {
 
-// 	const id = req.query.site_id;
+	const nome = req.body.nome;
+	const url = req.body.url;
 	
 
-// 	//consulta no bd o id que vem da req
-// 	const query = `SELECT * FROM historico_site WHERE site_id = ${id}		
-// 	ORDER BY id DESC LIMIT 10`;
+	const query = `INSERT INTO site (nome, url) VALUES ('${nome}', '${url}')`;
 
-// 	db.all(query, (err, row) => {
+	db.run(query, (err) => {
 
-// 		if (err) {
-// 			return res.status(500).send(err);
-// 		}
-// 		res.setHeader('Content-type', 'application/json');
-// 		res.send(row);
-// 	});
+		if (err) {
+			return res.status(500).send(err);
+		}
+		
+		return res.status(200).send();
+	});
 
 
-// });
+});
 
 app.listen(3000, () => {
 	console.log('UP and running');
